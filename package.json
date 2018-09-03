@@ -1,0 +1,65 @@
+{
+  "name": "graphql-yup-middleware",
+  "version": "0.0.1",
+  "description": "GraphQL middleware to validate mutations arguments using yup",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "repository": "https://github.com/JCMais/graphql-yup-middleware",
+  "author": "Jonathan Cardoso Machado",
+  "license": "MIT",
+  "devDependencies": {
+    "@team-griffin/install-self-peers": "^1.1.1",
+    "@types/jest": "^23.3.1",
+    "jest": "^23.5.0",
+    "prettier": "^1.14.2",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^23.1.4",
+    "tslint-config-airbnb": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
+    "typescript": "^3.0.3"
+  },
+  "files": [
+    "dist"
+  ],
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "skipBabel": true
+      }
+    },
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "yarn clean && tsc",
+    "prepare": "install-self-peers -- --ignore-scripts",
+    "prepublishOnly": "yarn lint && yarn test && yarn build",
+    "lint": "tslint --project tsconfig.json {src}/**/*.ts",
+    "test": "jest"
+  },
+  "peerDependencies": {
+    "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0",
+    "graphql-middleware": ">= 1.7.0 < 2",
+    "yup": ">= 0.25 < 1"
+  },
+  "engines": {
+    "node": ">= 8"
+  },
+  "dependencies": {
+    "@types/graphql": "0.13.4",
+    "@types/lodash.groupby": "^4.6.4",
+    "@types/yup": "^0.24.9",
+    "lodash.groupby": "^4.6.0"
+  }
+}

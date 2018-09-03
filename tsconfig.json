@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    // Node.js >= 8 supports 100% of ES2017 (https://node.green/)
+    "target": "es2017",
+    "lib": [
+      "es2017",
+      // error Cannot find name 'AsyncIterable'.
+      "esnext.asynciterable"
+    ],
+    "declaration": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "sourceMap": true,
+    "strict": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
+}
