@@ -11,7 +11,7 @@
 
 It's a middleware to be used with [`graphql-middleware`][graphql-middleware] to add validations to mutations arguments using [`yup`][yup].
 
-It originated from this post:
+It originated from this post: https://medium.com/@jonathancardoso/graphql-mutation-arguments-validation-with-yup-using-graphql-middleware-645822fb748
 
 ### Install
 
