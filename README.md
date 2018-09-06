@@ -1,5 +1,12 @@
 ## GraphQL Mutations Validation Yup Middleware
 
+[![npm](https://img.shields.io/npm/v/graphql-yup-middleware.svg)](https://www.npmjs.com/package/graphql-yup-middleware)
+[![CircleCI (all branches)](https://img.shields.io/circleci/project/github/JCMais/graphql-yup-middleware.svg)](https://circleci.com/gh/JCMais/graphql-yup-middleware)
+
+1. [What is this?](#what-is-this)
+1. [Install](#install)
+1. [Usage](#usage)
+
 ### What is this?
 
 It's a middleware to be used with [`graphql-middleware`][graphql-middleware] to add validations to mutations arguments using [`yup`][yup].
@@ -14,9 +21,7 @@ yarn add graphql-yup-middleware
 
 Keep in mind that you also need to have [`graphql`][graphql] and [`yup`][yup] as dependencies of your project.
 
-### Usage
-
-#### Options
+### Options
 
 The `yupMutationMiddleware` function exported by this package should always
 be called when adding it as middleware. Do not add it without calling first.
