@@ -1,0 +1,25 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/app
+    docker:
+      - image: circleci/node:8.11.4
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v0-user-cache-{{ .Branch }}
+            - v0-user-cache
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile --non-interactive --cache-folder ~/.cache/yarn
+      - save_cache:
+          key: v0-user-cache-{{ .Branch }}
+          paths:
+            - ~/.cache
+      - run:
+          name: Run lint
+          command: yarn lint
+      - run:
+          name: Run tests
+          command: yarn test
