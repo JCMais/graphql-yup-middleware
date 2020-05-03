@@ -9,15 +9,16 @@
   "license": "MIT",
   "devDependencies": {
     "@team-griffin/install-self-peers": "^1.1.1",
-    "@types/jest": "^23.3.1",
-    "jest": "^23.5.0",
-    "prettier": "^1.14.2",
-    "rimraf": "^2.6.2",
-    "ts-jest": "^23.1.4",
-    "tslint": "^5.11.0",
-    "tslint-config-airbnb": "^5.11.0",
-    "tslint-config-prettier": "^1.15.0",
-    "typescript": "^3.0.3"
+    "@types/jest": "^25.2.1",
+    "jest": "^25.5.4",
+    "np": "^6.2.3",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^25.4.0",
+    "tslint": "^6.1.2",
+    "tslint-config-airbnb": "^5.11.2",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.8.3"
   },
   "files": [
     "dist"
@@ -25,7 +26,7 @@
   "jest": {
     "globals": {
       "ts-jest": {
-        "skipBabel": true
+        "babelConfig": false
       }
     },
     "transform": {
@@ -47,20 +48,20 @@
     "prepare": "install-self-peers -- --ignore-scripts",
     "prepublishOnly": "yarn lint && yarn test && yarn build",
     "lint": "tslint --project tsconfig.json {src}/**/*.ts",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "jest --watchAll"
   },
   "peerDependencies": {
-    "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0",
-    "graphql-middleware": ">= 1.7.0 < 2",
+    "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0",
+    "graphql-middleware": ">= 1.7.0",
     "yup": ">= 0.25 < 1"
   },
   "engines": {
     "node": ">= 8"
   },
   "dependencies": {
-    "@types/graphql": "0.13.4",
-    "@types/lodash.groupby": "^4.6.4",
-    "@types/yup": "^0.24.9",
-    "lodash.groupby": "^4.6.0"
+    "@types/lodash.groupby": "4.6.6",
+    "@types/yup": "0.28.0",
+    "lodash.groupby": "4.6.0"
   }
 }
