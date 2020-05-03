@@ -162,7 +162,9 @@ const schemaWithMiddleware = applyMiddleware(schema, yupMiddleware());
 
 ### Setting the Validation Schema of each Mutation
 
-For each mutation that you want to validate the args, you must define a property `validationSchema` when defining it. Example:
+For each mutation that you want to validate the args, you must define the validation schema on the definition of the mutation. The way to do that depends on the version of GraphQL you are using:
+
+#### GraphQL <= 14
 
 ```ts
 const resolvers = {
@@ -170,6 +172,26 @@ const resolvers = {
   Mutation: {
     AddUser: {
       validationSchema: yupSchemaHere,
+      resolve: async (root, args, context, info) => {
+        // ...
+      },
+    },
+  },
+};
+```
+
+#### GraphQL >= 15
+
+```ts
+const resolvers = {
+  // ...
+  Mutation: {
+    AddUser: {
+      extensions: {
+        yupMiddleware: {
+          validationSchema: yupSchemaHere,
+        },
+      },
       resolve: async (root, args, context, info) => {
         // ...
       },
@@ -195,7 +217,7 @@ export default mutationWithClientMutationId({
       // ...
     }),
   }),
-  mutateAndGetPayload: async args => {
+  mutateAndGetPayload: async (args) => {
     // ...
   },
   outputFields: {
@@ -209,7 +231,7 @@ This will:
 ```js
 const mutation = mutationWithClientMutationId({
   name: 'MyMutation',
-  mutateAndGetPayload: async args => {
+  mutateAndGetPayload: async (args) => {
     // ...
   },
   outputFields: {
@@ -217,6 +239,7 @@ const mutation = mutationWithClientMutationId({
   },
 });
 
+// GraphQL <= 14
 export default {
   ...mutation,
   validationSchema: yup.object().shape({
@@ -224,6 +247,21 @@ export default {
       // ...
     }),
   }),
+};
+
+// GraphQL >= 15
+export default {
+  ...mutation,
+  extensions: {
+    ...mutation.extensions,
+    yupMiddleware: {
+      validationSchema: yup.object().shape({
+        input: yup.object().shape({
+          // ...
+        }),
+      }),
+    },
+  },
 };
 ```
 
