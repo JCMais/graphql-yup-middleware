@@ -38,12 +38,14 @@ const getDefaultSchema = <TSource = any, TArgs = Object>(
       AddUserErrorObject(firstName: String!, lastName: String!, age: Int!): AddUserPayloadWithErrorObject!
       AddUserErrorCustom(firstName: String!, lastName: String!, age: Int!): AddUserPayloadWithErrorCustom!
       AddUserWithOptions(firstName: String!, lastName: String!, age: Int!): AddUserPayload!
+      AddUserErrorObjectExtensions(firstName: String!, lastName: String!, age: Int!): AddUserPayloadWithErrorObject!
     }
     type Query {
       hello: String!
     }
   `;
 
+  // tslint:disable-next-line: variable-name
   const AddUser = {
     validationSchema,
     resolve: (_: TSource, args: TArgs) => {
@@ -69,6 +71,14 @@ const getDefaultSchema = <TSource = any, TArgs = Object>(
           },
         },
       },
+      AddUserErrorObjectExtensions: {
+        extensions: {
+          yupMiddleware: {
+            validationSchema,
+          },
+        },
+        resolve: AddUser.resolve,
+      },
     },
     Query: {
       hello: () => 'world',
@@ -76,8 +86,8 @@ const getDefaultSchema = <TSource = any, TArgs = Object>(
   };
 
   return makeExecutableSchema({
-    typeDefs: [typeDefs, MutationValidationError, FieldValidationError],
     resolvers,
+    typeDefs: [typeDefs, MutationValidationError, FieldValidationError],
   });
 };
 
@@ -98,6 +108,26 @@ const defaultQuery = `
 const defaultQueryErrorObject = `
   mutation AddUser($firstName: String!, $lastName: String!, $age: Int!) {
     AddUserErrorObject(firstName: $firstName, lastName: $lastName, age: $age) {
+      error {
+        message
+        details {
+          field
+          errors
+        }
+      }
+      user {
+        id
+        firstName
+        lastName
+        age
+      }
+    }
+  }
+`;
+
+const defaultQueryErrorObjectExtensions = `
+  mutation AddUser($firstName: String!, $lastName: String!, $age: Int!) {
+    AddUserErrorObjectExtensions(firstName: $firstName, lastName: $lastName, age: $age) {
       error {
         message
         details {
@@ -160,18 +190,9 @@ const customErrorPayloadBuilder = (
 it('should validate correctly - string error - error', async () => {
   const schema = getDefaultSchema(
     yup.object().shape({
-      firstName: yup
-        .string()
-        .trim()
-        .min(1),
-      lastName: yup
-        .string()
-        .trim()
-        .min(1),
-      age: yup
-        .number()
-        .min(18)
-        .max(100),
+      firstName: yup.string().trim().min(1),
+      lastName: yup.string().trim().min(1),
+      age: yup.number().min(18).max(100),
     }),
   );
 
@@ -189,18 +210,9 @@ it('should validate correctly - string error - error', async () => {
 it('should validate correctly - string error - pass', async () => {
   const schema = getDefaultSchema(
     yup.object().shape({
-      firstName: yup
-        .string()
-        .trim()
-        .min(1),
-      lastName: yup
-        .string()
-        .trim()
-        .min(1),
-      age: yup
-        .number()
-        .min(18)
-        .max(100),
+      firstName: yup.string().trim().min(1),
+      lastName: yup.string().trim().min(1),
+      age: yup.number().min(18).max(100),
     }),
   );
 
@@ -218,18 +230,9 @@ it('should validate correctly - string error - pass', async () => {
 it('should validate correctly - object error - error', async () => {
   const schema = getDefaultSchema(
     yup.object().shape({
-      firstName: yup
-        .string()
-        .trim()
-        .min(1),
-      lastName: yup
-        .string()
-        .trim()
-        .min(1),
-      age: yup
-        .number()
-        .min(18)
-        .max(100),
+      firstName: yup.string().trim().min(1),
+      lastName: yup.string().trim().min(1),
+      age: yup.number().min(18).max(100),
     }),
   );
 
@@ -250,21 +253,64 @@ it('should validate correctly - object error - error', async () => {
   expect(res).toMatchSnapshot();
 });
 
+it('should validate correctly - extensions field - object error - pass', async () => {
+  const schema = getDefaultSchema(
+    yup.object().shape({
+      firstName: yup.string().trim().min(1),
+      lastName: yup.string().trim().min(1),
+      age: yup.number().min(18).max(100),
+    }),
+  );
+
+  const schemaWithMiddleware = applyMiddleware(schema, yupMiddleware());
+
+  const res = await graphql(
+    schemaWithMiddleware,
+    defaultQueryErrorObjectExtensions,
+    null,
+    null,
+    {
+      firstName: 'Jon',
+      lastName: 'Doe',
+      age: 18,
+    },
+  );
+
+  expect(res).toMatchSnapshot();
+});
+
+it('should validate correctly - extensions field - object error - error', async () => {
+  const schema = getDefaultSchema(
+    yup.object().shape({
+      firstName: yup.string().trim().min(1),
+      lastName: yup.string().trim().min(1),
+      age: yup.number().min(18).max(100),
+    }),
+  );
+
+  const schemaWithMiddleware = applyMiddleware(schema, yupMiddleware());
+
+  const res = await graphql(
+    schemaWithMiddleware,
+    defaultQueryErrorObjectExtensions,
+    null,
+    null,
+    {
+      firstName: '',
+      lastName: '',
+      age: 10,
+    },
+  );
+
+  expect(res).toMatchSnapshot();
+});
+
 it('should validate correctly - object error - pass', async () => {
   const schema = getDefaultSchema(
     yup.object().shape({
-      firstName: yup
-        .string()
-        .trim()
-        .min(1),
-      lastName: yup
-        .string()
-        .trim()
-        .min(1),
-      age: yup
-        .number()
-        .min(18)
-        .max(100),
+      firstName: yup.string().trim().min(1),
+      lastName: yup.string().trim().min(1),
+      age: yup.number().min(18).max(100),
     }),
   );
 
@@ -288,18 +334,9 @@ it('should validate correctly - object error - pass', async () => {
 it('should validate correctly - custom error - error', async () => {
   const schema = getDefaultSchema(
     yup.object().shape({
-      firstName: yup
-        .string()
-        .trim()
-        .min(1),
-      lastName: yup
-        .string()
-        .trim()
-        .min(1),
-      age: yup
-        .number()
-        .min(18)
-        .max(100),
+      firstName: yup.string().trim().min(1),
+      lastName: yup.string().trim().min(1),
+      age: yup.number().min(18).max(100),
     }),
   );
 
@@ -328,18 +365,9 @@ it('should validate correctly - custom error - error', async () => {
 it('should validate correctly - custom error - pass', async () => {
   const schema = getDefaultSchema(
     yup.object().shape({
-      firstName: yup
-        .string()
-        .trim()
-        .min(1),
-      lastName: yup
-        .string()
-        .trim()
-        .min(1),
-      age: yup
-        .number()
-        .min(18)
-        .max(100),
+      firstName: yup.string().trim().min(1),
+      lastName: yup.string().trim().min(1),
+      age: yup.number().min(18).max(100),
     }),
   );
 
@@ -401,18 +429,9 @@ describe('Options', () => {
     const schema = () =>
       getDefaultSchema(
         yup.object().shape({
-          firstName: yup
-            .string()
-            .trim()
-            .min(1),
-          lastName: yup
-            .string()
-            .trim()
-            .min(1),
-          age: yup
-            .number()
-            .min(18)
-            .max(100),
+          firstName: yup.string().trim().min(1),
+          lastName: yup.string().trim().min(1),
+          age: yup.number().min(18).max(100),
         }),
       );
 
@@ -458,18 +477,9 @@ describe('Options', () => {
   it('should forward yup options correctly', async () => {
     const schema = getDefaultSchema(
       yup.object().shape({
-        firstName: yup
-          .string()
-          .trim()
-          .min(1),
-        lastName: yup
-          .string()
-          .trim()
-          .min(1),
-        age: yup
-          .number()
-          .min(18)
-          .max(100),
+        firstName: yup.string().trim().min(1),
+        lastName: yup.string().trim().min(1),
+        age: yup.number().min(18).max(100),
       }),
     );
 
@@ -494,18 +504,9 @@ describe('Options', () => {
   it('should use validationOptions from mutation definition if present', async () => {
     const schema = getDefaultSchema(
       yup.object().shape({
-        firstName: yup
-          .string()
-          .trim()
-          .min(1),
-        lastName: yup
-          .string()
-          .trim()
-          .min(1),
-        age: yup
-          .number()
-          .min(18)
-          .max(100),
+        firstName: yup.string().trim().min(1),
+        lastName: yup.string().trim().min(1),
+        age: yup.number().min(18).max(100),
       }),
     );
 

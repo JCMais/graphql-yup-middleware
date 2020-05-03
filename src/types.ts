@@ -1,4 +1,4 @@
-import { ValidateOptions, ValidationError } from 'yup';
+import { ValidateOptions, ValidationError, Schema } from 'yup';
 import { GraphQLResolveInfo } from 'graphql';
 
 export type YupMiddlewareErrorContext<TContext = any, TArgs = any> = {
@@ -26,3 +26,19 @@ export type YupMiddlewareDefaultError = {
   message: string;
   details: YupMiddlewareFieldValidationError[];
 };
+
+export interface GraphQLExtensionsYup<
+  TSource,
+  TContext,
+  TArgs = { [key: string]: any }
+> {
+  validationOptions?: YupMiddlewareOptions;
+  validationSchema?:
+    | Schema<TArgs>
+    | ((
+        root: TSource,
+        args: TArgs,
+        context: TContext,
+        info: GraphQLResolveInfo,
+      ) => Schema<TArgs>);
+}

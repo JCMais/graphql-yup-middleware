@@ -10,7 +10,7 @@ import { IMiddleware } from 'graphql-middleware';
 
 import './graphql.augmented';
 import buildErrorObjectFromValidationError from './buildErrorObjectFromValidationError';
-import { YupMiddlewareOptions } from './types';
+import { YupMiddlewareOptions, GraphQLExtensionsYup } from './types';
 import { MutationValidationErrorType } from './MutationValidationErrorType';
 
 const defaultOptions = {
@@ -39,6 +39,7 @@ export default function yupMutationMiddleware<
   }
 
   return {
+    // tslint:disable-next-line: function-name
     async Mutation(
       resolve: Function,
       root: TSource,
@@ -55,8 +56,24 @@ export default function yupMutationMiddleware<
 
       const mutationDefinition = mutationField.getFields()[info.fieldName];
 
-      const mutationValidationSchema = mutationDefinition.validationSchema;
-      const mutationValidationOptions = mutationDefinition.validationOptions;
+      const hasExtensionsField =
+        !!mutationDefinition.extensions &&
+        !!mutationDefinition.extensions.yupMiddleware;
+
+      const mutationValidationSchema = hasExtensionsField
+        ? (mutationDefinition.extensions!.yupMiddleware as GraphQLExtensionsYup<
+            TSource,
+            TContext,
+            TArgs
+          >).validationSchema
+        : mutationDefinition.validationSchema;
+      const mutationValidationOptions = hasExtensionsField
+        ? (mutationDefinition.extensions!.yupMiddleware as GraphQLExtensionsYup<
+            TSource,
+            TContext,
+            TArgs
+          >).validationOptions
+        : mutationDefinition.validationOptions;
 
       if (mutationValidationSchema) {
         const finalOptions = {
