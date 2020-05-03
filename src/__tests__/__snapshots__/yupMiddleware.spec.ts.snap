@@ -174,56 +174,7 @@ Object {
 }
 `;
 
-exports[`should validate correctly - object error - error 2`] = `
-Object {
-  "data": Object {
-    "AddUserErrorObject": Object {
-      "error": Object {
-        "details": Array [
-          Object {
-            "errors": Array [
-              "firstName must be at least 1 characters",
-            ],
-            "field": "firstName",
-          },
-          Object {
-            "errors": Array [
-              "lastName must be at least 1 characters",
-            ],
-            "field": "lastName",
-          },
-          Object {
-            "errors": Array [
-              "age must be greater than or equal to 18",
-            ],
-            "field": "age",
-          },
-        ],
-        "message": "3 errors occurred",
-      },
-      "user": null,
-    },
-  },
-}
-`;
-
 exports[`should validate correctly - object error - pass 1`] = `
-Object {
-  "data": Object {
-    "AddUserErrorObject": Object {
-      "error": null,
-      "user": Object {
-        "age": 18,
-        "firstName": "Jon",
-        "id": 3,
-        "lastName": "Doe",
-      },
-    },
-  },
-}
-`;
-
-exports[`should validate correctly - object error - pass 2`] = `
 Object {
   "data": Object {
     "AddUserErrorObject": Object {
