@@ -9,20 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Breaking Change
 
-### Fixed
-
-### Added
-
-### Changed
-
-## [Unreleased]
-
-### Breaking Change
+- Requires GraphQL v15
+- Requires Node.js >= 12
+- Requires `graphql-middleware` >= 6
+- Dropped support for `graphql-yoga` - This library is not maintained anymore
+- Only supports usage with GraphQL `extensions`. Extension property name is `yupMiddleware`.
 
 ### Fixed
-
-- Use GraphQL `extensions` when available.
-- Support GraphQL v15
 
 ### Added
 
@@ -32,4 +25,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### First version
 
-[unreleased]: https://github.com/JCMais/graphql-yup-middleware/compare/master...HEAD
+[unreleased]: https://github.com/JCMais/graphql-yup-middleware/compare/ce531ee317dccb95be201d356806f508ef47ab58...HEAD
+[0.0.1]: https://github.com/JCMais/graphql-yup-middleware/tree/ce531ee317dccb95be201d356806f508ef47ab58

@@ -1,6 +1,10 @@
 import { graphql } from 'graphql';
 import { applyMiddleware } from 'graphql-middleware';
-import { makeExecutableSchema } from 'graphql-tools';
+import {
+  IExecutableSchemaDefinition,
+  IFieldResolverOptions,
+  makeExecutableSchema,
+} from 'graphql-tools';
 import * as yup from 'yup';
 
 import yupMiddleware from '../yupMiddleware';
@@ -11,8 +15,8 @@ import { YupMiddlewareErrorContext } from '../types';
 // got it throwing a dice 🎲
 const randomId = 3;
 
-const getDefaultSchema = <TSource = any, TArgs = Object>(
-  validationSchema?: yup.Schema<TArgs>,
+const getDefaultSchema = <TSource = any, TArgs = Record<string, any>>(
+  validationSchema?: yup.AnyObjectSchema,
 ) => {
   const typeDefs = `
     type User {
@@ -38,46 +42,47 @@ const getDefaultSchema = <TSource = any, TArgs = Object>(
       AddUserErrorObject(firstName: String!, lastName: String!, age: Int!): AddUserPayloadWithErrorObject!
       AddUserErrorCustom(firstName: String!, lastName: String!, age: Int!): AddUserPayloadWithErrorCustom!
       AddUserWithOptions(firstName: String!, lastName: String!, age: Int!): AddUserPayload!
-      AddUserErrorObjectExtensions(firstName: String!, lastName: String!, age: Int!): AddUserPayloadWithErrorObject!
     }
     type Query {
       hello: String!
     }
   `;
 
-  // tslint:disable-next-line: variable-name
-  const AddUser = {
-    validationSchema,
+  const AddUser: IFieldResolverOptions = {
+    extensions: validationSchema
+      ? {
+          yupMiddleware: {
+            validationSchema,
+          },
+        }
+      : undefined,
     resolve: (_: TSource, args: TArgs) => {
       return {
         user: {
-          ...(args as Object),
+          ...args,
           id: randomId,
         },
       };
     },
   };
 
-  const resolvers = {
+  const resolvers: IExecutableSchemaDefinition['resolvers'] = {
     Mutation: {
       AddUser,
       AddUserErrorObject: AddUser,
       AddUserErrorCustom: AddUser,
       AddUserWithOptions: {
         ...AddUser,
-        validationOptions: {
-          yupOptions: {
-            abortEarly: true,
-          },
-        },
-      },
-      AddUserErrorObjectExtensions: {
-        extensions: {
+        extensions: AddUser.extensions && {
           yupMiddleware: {
-            validationSchema,
+            ...AddUser.extensions!.yupMiddleware,
+            validationOptions: {
+              yupOptions: {
+                abortEarly: true,
+              },
+            },
           },
         },
-        resolve: AddUser.resolve,
       },
     },
     Query: {
@@ -125,26 +130,6 @@ const defaultQueryErrorObject = `
   }
 `;
 
-const defaultQueryErrorObjectExtensions = `
-  mutation AddUser($firstName: String!, $lastName: String!, $age: Int!) {
-    AddUserErrorObjectExtensions(firstName: $firstName, lastName: $lastName, age: $age) {
-      error {
-        message
-        details {
-          field
-          errors
-        }
-      }
-      user {
-        id
-        firstName
-        lastName
-        age
-      }
-    }
-  }
-`;
-
 const defaultQueryErrorCustom = `
   mutation AddUser($firstName: String!, $lastName: String!, $age: Int!) {
     AddUserErrorCustom(firstName: $firstName, lastName: $lastName, age: $age) {
@@ -175,7 +160,7 @@ const defaultQueryWithOptions = `
 
 const customErrorPayloadBuilder = (
   error: yup.ValidationError,
-  errorContext: YupMiddlewareErrorContext,
+  _errorContext: YupMiddlewareErrorContext,
 ) => {
   const reduceErrors = (error: yup.ValidationError): string[] =>
     error.inner.reduce(
@@ -241,58 +226,6 @@ it('should validate correctly - object error - error', async () => {
   const res = await graphql(
     schemaWithMiddleware,
     defaultQueryErrorObject,
-    null,
-    null,
-    {
-      firstName: '',
-      lastName: '',
-      age: 10,
-    },
-  );
-
-  expect(res).toMatchSnapshot();
-});
-
-it('should validate correctly - extensions field - object error - pass', async () => {
-  const schema = getDefaultSchema(
-    yup.object().shape({
-      firstName: yup.string().trim().min(1),
-      lastName: yup.string().trim().min(1),
-      age: yup.number().min(18).max(100),
-    }),
-  );
-
-  const schemaWithMiddleware = applyMiddleware(schema, yupMiddleware());
-
-  const res = await graphql(
-    schemaWithMiddleware,
-    defaultQueryErrorObjectExtensions,
-    null,
-    null,
-    {
-      firstName: 'Jon',
-      lastName: 'Doe',
-      age: 18,
-    },
-  );
-
-  expect(res).toMatchSnapshot();
-});
-
-it('should validate correctly - extensions field - object error - error', async () => {
-  const schema = getDefaultSchema(
-    yup.object().shape({
-      firstName: yup.string().trim().min(1),
-      lastName: yup.string().trim().min(1),
-      age: yup.number().min(18).max(100),
-    }),
-  );
-
-  const schemaWithMiddleware = applyMiddleware(schema, yupMiddleware());
-
-  const res = await graphql(
-    schemaWithMiddleware,
-    defaultQueryErrorObjectExtensions,
     null,
     null,
     {

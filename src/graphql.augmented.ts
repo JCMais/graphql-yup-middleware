@@ -1,23 +1,18 @@
-import { Schema } from 'yup';
-import { GraphQLResolveInfo } from 'graphql';
-import { YupMiddlewareOptions } from './types';
+import 'graphql/type/definition';
+
+import { GraphQLExtensionsYupMiddleware } from './types';
 
 // We need to be merged to improve the types here https://github.com/graphql/graphql-js/pull/2465
 
 declare module 'graphql/type/definition' {
-  export interface GraphQLField<
-    TSource,
-    TContext,
-    TArgs = { [key: string]: any }
+  export interface GraphQLFieldExtensions<
+    _TSource,
+    _TContext,
+    _TArgs = { [argName: string]: any }
   > {
-    validationOptions?: YupMiddlewareOptions;
-    validationSchema?:
-      | Schema<TArgs>
-      | ((
-          root: TSource,
-          args: TArgs,
-          context: TContext,
-          info: GraphQLResolveInfo,
-        ) => Schema<TArgs>);
+    /**
+     * Options to be passed to the yup middleware. This is only used if this field is a Mutation
+     */
+    yupMiddleware?: GraphQLExtensionsYupMiddleware<_TSource, _TContext, _TArgs>;
   }
 }

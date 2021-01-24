@@ -7,6 +7,8 @@
 1. [Install](#install)
 1. [Usage](#usage)
 
+> **I have no plans to add new features to this library - It's on mainteance-only mode. When building the schema for any new GraphQL server, my recommendation is to use [nexus](https://github.com/graphql-nexus/nexus), which has native support for plugins**
+
 ### What is this?
 
 It's a middleware to be used with [`graphql-middleware`][graphql-middleware] to add validations to mutations arguments using [`yup`][yup].
@@ -19,7 +21,7 @@ It originated from this post: https://medium.com/@jonathancardoso/graphql-mutati
 yarn add graphql-yup-middleware
 ```
 
-Keep in mind that you also need to have [`graphql`][graphql] and [`yup`][yup] as dependencies of your project.
+Keep in mind that you also need to have [`graphql`][graphql] (>= `15`), [`graphql-middleware`](graphql-middleware) (>= `6`) and [`yup`][yup] as dependencies of your project.
 
 ### Options
 
@@ -44,7 +46,7 @@ type YupMiddlewareOptions = {
 
 The defaults are:
 
-```js
+```ts
 {
   shouldTransformArgs: true,
   yupOptions: {
@@ -107,42 +109,6 @@ import {
 
 ### Usage
 
-#### graphql-yoga
-
-Pass it as a middleware when creating the `GraphQLServer`:
-
-```ts
-import {
-  MutationValidationErrorType,
-  FieldValidationErrorType,
-  yupMiddleware,
-} from 'graphql-yup-middleware';
-
-//...
-
-const server = new GraphQLServer({
-  typeDefs: [
-    MutationValidationErrorType,
-    FieldValidationErrorType,
-    ...yourOtherTypeDefs,
-  ],
-  resolvers,
-  middlewares: [yupMiddleware()],
-});
-```
-
-##### Notice
-
-The current version of `graphql-middleware` shipped with `graphql-yoga` does not works with this middleware, you can workaround that if you use `yarn`, by forcing the necessary version to be installed instead:
-
-```json
-  "resolutions": {
-    "graphql-yoga/graphql-middleware": "^1.7.0"
-  },
-```
-
-#### Others
-
 For using it with other servers, like apollo, express, koa, etc, you are going to need to install `graphql-middleware` too:
 
 ```sh
@@ -162,25 +128,7 @@ const schemaWithMiddleware = applyMiddleware(schema, yupMiddleware());
 
 ### Setting the Validation Schema of each Mutation
 
-For each mutation that you want to validate the args, you must define the validation schema on the definition of the mutation. The way to do that depends on the version of GraphQL you are using:
-
-#### GraphQL <= 14
-
-```ts
-const resolvers = {
-  // ...
-  Mutation: {
-    AddUser: {
-      validationSchema: yupSchemaHere,
-      resolve: async (root, args, context, info) => {
-        // ...
-      },
-    },
-  },
-};
-```
-
-#### GraphQL >= 15
+For each mutation that you want to validate the args, you must define the validation schema on the definition of the mutation. This is done using the `extensions` field:
 
 ```ts
 const resolvers = {
@@ -205,7 +153,7 @@ other [options](#options) that should only be used for this mutation.
 
 #### graphql-relay
 
-If using the helper `mutationWithClientMutationId` from `graphql-relay`, you need to store the resulting mutation configuration to a variable, since if you try to add the `validationSchema` directly, it's not going to work (`graphql-relay` does not forward extra properties).
+If using the helper `mutationWithClientMutationId` from `graphql-relay`, you need to store the resulting mutation configuration to a variable, since if you try to add the `validationSchema` directly, it's not going to work (`graphql-relay` does not forward extra properties). See this issue for more details: https://github.com/graphql/graphql-relay-js/issues/244
 
 This will not work:
 
@@ -239,17 +187,6 @@ const mutation = mutationWithClientMutationId({
   },
 });
 
-// GraphQL <= 14
-export default {
-  ...mutation,
-  validationSchema: yup.object().shape({
-    input: yup.object().shape({
-      // ...
-    }),
-  }),
-};
-
-// GraphQL >= 15
 export default {
   ...mutation,
   extensions: {
@@ -266,6 +203,6 @@ export default {
 ```
 
 [graphql]: https://github.com/graphql/graphql-js
-[graphql-middleware]: https://github.com/prisma/graphql-middleware
+[graphql-middleware]: https://github.com/maticzav/graphql-middleware
 [graphql-yoga]: https://github.com/prisma/graphql-yoga
 [yup]: https://github.com/jquense/yup

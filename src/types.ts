@@ -1,4 +1,4 @@
-import { ValidateOptions, ValidationError, Schema } from 'yup';
+import * as Yup from 'yup';
 import { GraphQLResolveInfo } from 'graphql';
 
 export type YupMiddlewareErrorContext<TContext = any, TArgs = any> = {
@@ -10,11 +10,11 @@ export type YupMiddlewareErrorContext<TContext = any, TArgs = any> = {
 
 export type YupMiddlewareOptions = {
   errorPayloadBuilder?: (
-    error: ValidationError,
+    error: Yup.ValidationError,
     errorContext: YupMiddlewareErrorContext,
-  ) => Object;
+  ) => any;
   shouldTransformArgs?: boolean;
-  yupOptions?: ValidateOptions;
+  yupOptions?: Parameters<Yup.BaseSchema['validate']>[1];
 };
 
 export type YupMiddlewareFieldValidationError = {
@@ -27,18 +27,24 @@ export type YupMiddlewareDefaultError = {
   details: YupMiddlewareFieldValidationError[];
 };
 
-export interface GraphQLExtensionsYup<
-  TSource,
-  TContext,
-  TArgs = { [key: string]: any }
+export type YupMiddlewareGraphQLArgsToSchemaFields<
+  Arg extends Record<string, any>
+> = {
+  [K in keyof Arg]: Yup.AnySchema;
+};
+
+export interface GraphQLExtensionsYupMiddleware<
+  _TSource,
+  _TContext,
+  _TArgs = { [key: string]: any }
 > {
   validationOptions?: YupMiddlewareOptions;
-  validationSchema?:
-    | Schema<TArgs>
+  validationSchema:
+    | Yup.ObjectSchema<YupMiddlewareGraphQLArgsToSchemaFields<_TArgs>>
     | ((
-        root: TSource,
-        args: TArgs,
-        context: TContext,
+        root: _TSource,
+        args: _TArgs,
+        context: _TContext,
         info: GraphQLResolveInfo,
-      ) => Schema<TArgs>);
+      ) => Yup.ObjectSchema<YupMiddlewareGraphQLArgsToSchemaFields<_TArgs>>);
 }
