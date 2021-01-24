@@ -1,6 +1,6 @@
 {
   "name": "graphql-yup-middleware",
-  "version": "0.0.2-0",
+  "version": "1.0.0-0",
   "description": "GraphQL middleware to validate mutations arguments using yup",
   "repository": "https://github.com/JCMais/graphql-yup-middleware",
   "license": "MIT",
