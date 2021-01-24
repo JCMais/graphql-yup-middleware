@@ -27,24 +27,18 @@ export type YupMiddlewareDefaultError = {
   details: YupMiddlewareFieldValidationError[];
 };
 
-export type YupMiddlewareGraphQLArgsToSchemaFields<
-  Arg extends Record<string, any>
-> = {
-  [K in keyof Arg]: Yup.AnySchema;
-};
-
 export interface GraphQLExtensionsYupMiddleware<
   _TSource,
   _TContext,
-  _TArgs = { [key: string]: any }
+  _TArgs extends Record<string, any> = Record<string, any>
 > {
   validationOptions?: YupMiddlewareOptions;
   validationSchema:
-    | Yup.ObjectSchema<YupMiddlewareGraphQLArgsToSchemaFields<_TArgs>>
+    | Yup.ObjectSchema<_TArgs>
     | ((
         root: _TSource,
         args: _TArgs,
         context: _TContext,
         info: GraphQLResolveInfo,
-      ) => Yup.ObjectSchema<YupMiddlewareGraphQLArgsToSchemaFields<_TArgs>>);
+      ) => Yup.ObjectSchema<_TArgs>);
 }

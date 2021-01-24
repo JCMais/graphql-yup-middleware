@@ -10,7 +10,7 @@ import {
 
 export default function buildErrorObjectFromValidationError(
   error: ValidationError,
-  errorContext: YupMiddlewareErrorContext,
+  _errorContext: YupMiddlewareErrorContext,
 ): { error: YupMiddlewareDefaultError } {
   let rootError: YupMiddlewareDefaultError = {
     message: error.message,
@@ -25,7 +25,7 @@ export default function buildErrorObjectFromValidationError(
         ...acc,
         {
           field: key,
-          errors: errorsGrouped[key].map(fieldError => fieldError.message),
+          errors: errorsGrouped[key].map((fieldError) => fieldError.message),
         },
       ],
       [],

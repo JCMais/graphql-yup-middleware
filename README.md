@@ -7,7 +7,7 @@
 1. [Install](#install)
 1. [Usage](#usage)
 
-> **I have no plans to add new features to this library - It's on mainteance-only mode. When building the schema for any new GraphQL server, my recommendation is to use [nexus](https://github.com/graphql-nexus/nexus), which has native support for plugins**
+> **I have no plans to add new features to this library - It's on mainteance-only mode. When building the schema for any new GraphQL server, my recommendation is to use [nexus](https://github.com/graphql-nexus/nexus), which has native support for plugins - I have a few plugins available in [JCMais/nexus-plugins](https://github.com/JCMais/nexus-plugins), including one for Yup validation.**
 
 ### What is this?
 
