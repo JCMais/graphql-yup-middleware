@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    // Node.js >= 8 supports 100% of ES2017 (https://node.green/)
-    "target": "es2017",
+    // Node.js >= 12 supports 100% of ES2019 (https://node.green/)
+    "target": "es2019",
     "lib": [
-      "es2017",
-      // error Cannot find name 'AsyncIterable'.
+      "es2019",
+      "es2020.bigint",
+      "es2020.string",
+      "es2020.symbol.wellknown",
       "esnext.asynciterable"
     ],
     "declaration": true,
