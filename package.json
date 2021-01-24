@@ -32,7 +32,7 @@
     "**/*.{json,css,md,yaml,yml,html,graphql}": [
       "prettier --write"
     ],
-    "package.json": [
+    "**/package.json": [
       "sort-package-json"
     ]
   },
